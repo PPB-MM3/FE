@@ -61,10 +61,24 @@ class _MenuScreenState extends State<MenuScreen> {
 
   int cart = 3;
 
+  String getGreeting() {
+    int hour = DateTime.now().hour;
+    if (hour < 12) {
+      return "Selamat Pagi!";
+    } else if (hour < 15) {
+      return "Selamat Siang!";
+    } else if (hour < 18) {
+      return "Selamat Sore!";
+    } else {
+      return "Selamat Malam!";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double widthProduct = MediaQuery.of(context).size.width*0.3;
     double heightProduct = MediaQuery.of(context).size.width*0.41;
+    String greeting = getGreeting();
 
     return Scaffold(
       appBar: AppBar(
@@ -176,7 +190,7 @@ class _MenuScreenState extends State<MenuScreen> {
                       children: [
                         TextSpan(text: "Hai ${widget.name}, "),  // Use widget.name here
                         TextSpan(
-                          text: "Selamat Pagi!",
+                          text: greeting,
                           style: GoogleFonts.sen(
                             fontWeight: FontWeight.w700,
                             color: AppColors.text,
