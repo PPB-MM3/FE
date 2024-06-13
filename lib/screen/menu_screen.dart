@@ -27,7 +27,7 @@ class _MenuScreenState extends State<MenuScreen> {
   TextEditingController tecSeach = TextEditingController();
 
   List<Product> productList = [
-    Product(image: "assets/image/geprek.png", name: "Geprek Bensu Premium", price: 12000656000),
+    Product(image: "assets/image/geprek.png", name: "Geprek Bensu Premium", price: 12000),
     Product(image: "assets/image/geprek.png", name: "Geprek", price: 12000),
     Product(image: "assets/image/kopi.png", name: "Kopi", price: 5000),
     Product(image: "assets/image/geprek.png", name: "Geprek Bensu", price: 120000),
@@ -96,16 +96,6 @@ class _MenuScreenState extends State<MenuScreen> {
         leadingWidth: 70,
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              shape: const CircleBorder(),
-              padding: const EdgeInsets.all(8),
-              backgroundColor: AppColors.maroon,
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () {},
-            child: const Icon(IconaMoon.menuBurguerHorizontal),
-          ),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -421,4 +411,4 @@ class Store {
     required this.delivery,
     required this.deliveryTime,
   });
-}
+} 
