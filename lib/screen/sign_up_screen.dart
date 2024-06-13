@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:telfood/helper/app_colors.dart';
 import 'package:telfood/helper/navigators.dart';
 import 'package:telfood/widgets/text_sheet.dart';
+import 'sign_in_screen.dart'; // Import SignInScreen
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -32,11 +33,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
         );
         // You can also set the display name for the user
         await userCredential.user?.updateDisplayName(tecName.text);
-        // Navigate to another screen or show success message
-        print("User registered: ${userCredential.user?.email}");
+        // Navigate to SignInScreen or show success message
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => SignInScreen()),
+        );
       } on FirebaseAuthException catch (e) {
-        // Handle error
-        print("Error: ${e.message}");
+        // Handle error by showing a pop-up dialog
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Registration Failed'),
+              content: Text(e.message ?? 'An unknown error occurred.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
       }
     }
   }
