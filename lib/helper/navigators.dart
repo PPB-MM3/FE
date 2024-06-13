@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:telfood/screen/sign_in_screen.dart";
 
 class Navigators {
   static GlobalKey<NavigatorState> navigatorState = GlobalKey<NavigatorState>();
@@ -49,4 +50,6 @@ class Navigators {
   static void popAll(BuildContext context) {
     Navigator.of(context).popUntil((Route route) => route.isFirst);
   }
+
+  static void pushAndRemoveUntil(BuildContext context, SignInScreen signInScreen, bool Function(Route route) param2) {}
 }

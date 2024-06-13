@@ -9,8 +9,10 @@ import 'package:telfood/helper/navigators.dart';
 import 'package:telfood/screen/kantin_screen.dart';
 import 'package:telfood/screen/order_screen.dart';
 import 'package:telfood/screen/references_screen.dart';
+import 'package:telfood/screen/sign_in_screen.dart';
 import 'package:telfood/widgets/store_item.dart';
 import 'package:telfood/widgets/text_sheet.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class MenuScreen extends StatefulWidget {
   final String name;
@@ -23,7 +25,7 @@ class MenuScreen extends StatefulWidget {
 
 class _MenuScreenState extends State<MenuScreen> {
   TextEditingController tecSeach = TextEditingController();
-  
+
   List<Product> productList = [
     Product(image: "assets/image/geprek.png", name: "Geprek Bensu Premium", price: 12000656000),
     Product(image: "assets/image/geprek.png", name: "Geprek", price: 12000),
@@ -60,6 +62,7 @@ class _MenuScreenState extends State<MenuScreen> {
   ];
 
   int cart = 3;
+  String selectedBuilding = "Gedung DC";  // Default building
 
   String getGreeting() {
     int hour = DateTime.now().hour;
@@ -74,10 +77,18 @@ class _MenuScreenState extends State<MenuScreen> {
     }
   }
 
+  void _logout() async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => SignInScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    double widthProduct = MediaQuery.of(context).size.width*0.3;
-    double heightProduct = MediaQuery.of(context).size.width*0.41;
+    double widthProduct = MediaQuery.of(context).size.width * 0.3;
+    double heightProduct = MediaQuery.of(context).size.width * 0.41;
     String greeting = getGreeting();
 
     return Scaffold(
@@ -92,9 +103,7 @@ class _MenuScreenState extends State<MenuScreen> {
               backgroundColor: AppColors.maroon,
               foregroundColor: Colors.white,
             ),
-            onPressed: () {
-
-            },
+            onPressed: () {},
             child: const Icon(IconaMoon.menuBurguerHorizontal),
           ),
         ),
@@ -107,21 +116,31 @@ class _MenuScreenState extends State<MenuScreen> {
               fontWeight: FontWeight.w700,
               size: 12,
             ),
-            InkWell(
-              onTap: () {
-
+            PopupMenuButton<String>(
+              onSelected: (value) {
+                setState(() {
+                  selectedBuilding = value;
+                });
               },
+              itemBuilder: (context) => [
+                PopupMenuItem(value: "Ambil Sendiri", child: Text("Ambil Sendiri")),
+                PopupMenuItem(value: "Gedung DC", child: Text("Gedung DC")),
+                PopupMenuItem(value: "Gedung IOT", child: Text("Gedung IOT")),
+                PopupMenuItem(value: "Gedung DSP", child: Text("Gedung DSP")),
+                PopupMenuItem(value: "Gedung REK", child: Text("Gedung REK")),
+                PopupMenuItem(value: "Gedung TT", child: Text("Gedung TT")),
+              ],
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const TextSheet(
-                    text: "Gedung DC 201",
+                  TextSheet(
+                    text: selectedBuilding,
                     size: 14,
                   ),
                   Icon(Icons.arrow_drop_down)
                 ],
               ),
-            )
+            ),
           ],
         ),
         actions: [
@@ -170,7 +189,13 @@ class _MenuScreenState extends State<MenuScreen> {
                 ),
               )
             ],
-          )
+          ),
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () {
+              _logout();
+            },
+          ),
         ],
       ),
       body: SafeArea(
@@ -197,27 +222,20 @@ class _MenuScreenState extends State<MenuScreen> {
                             fontSize: 16,
                           ),
                         ),
-                      ]
-                  )
-              ),
+                      ])),
               SizedBox(height: 10),
               TextFormField(
                 controller: tecSeach,
                 keyboardType: TextInputType.text,
-                style: GoogleFonts.sen(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400
-                ),
+                style: GoogleFonts.sen(fontSize: 14, fontWeight: FontWeight.w400),
                 decoration: InputDecoration(
                     filled: true,
                     fillColor: Color(0xFFF6F6F6),
                     border: OutlineInputBorder(
                         borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.circular(12)
-                    ),
+                        borderRadius: BorderRadius.circular(12)),
                     hintText: "Cari minuman, kantin",
-                    prefixIcon: Icon(IconaMoon.search)
-                ),
+                    prefixIcon: Icon(IconaMoon.search)),
               ),
               SizedBox(height: 20),
               Row(
@@ -230,9 +248,7 @@ class _MenuScreenState extends State<MenuScreen> {
                   ),
                   SizedBox(width: 20),
                   InkWell(
-                    onTap: () {
-
-                    },
+                    onTap: () {},
                     child: Row(
                       children: [
                         TextSheet(
@@ -262,9 +278,12 @@ class _MenuScreenState extends State<MenuScreen> {
                         child: Stack(
                           children: [
                             Padding(
-                              padding: EdgeInsets.only(top: MediaQuery.of(context).size.width*0.1),
+                              padding: EdgeInsets.only(
+                                  top: MediaQuery.of(context).size.width * 0.1),
                               child: ClipPath(
-                                clipper: CustomShapeClipper(cornerRadius: 16, topInsets: (heightProduct)*0.025),
+                                clipper: CustomShapeClipper(
+                                    cornerRadius: 16,
+                                    topInsets: (heightProduct) * 0.025),
                                 child: Container(
                                   color: AppColors.yellow,
                                 ),
@@ -276,7 +295,7 @@ class _MenuScreenState extends State<MenuScreen> {
                               child: Center(
                                 child: SizedBox(
                                   height: widthProduct,
-                                  width: widthProduct*0.8,
+                                  width: widthProduct * 0.8,
                                   child: Image.asset(
                                     productList[index].image,
                                     fit: BoxFit.contain,
@@ -310,7 +329,8 @@ class _MenuScreenState extends State<MenuScreen> {
                                     FittedBox(
                                       fit: BoxFit.scaleDown,
                                       child: TextSheet(
-                                        text: "Rp ${productList[index].price.toCurrencyString(thousandSeparator: ThousandSeparator.Period, mantissaLength: 0)}",
+                                        text:
+                                            "Rp ${productList[index].price.toCurrencyString(thousandSeparator: ThousandSeparator.Period, mantissaLength: 0)}",
                                       ),
                                     ),
                                   ],
@@ -336,9 +356,7 @@ class _MenuScreenState extends State<MenuScreen> {
                   ),
                   SizedBox(width: 20),
                   InkWell(
-                    onTap: () {
-
-                    },
+                    onTap: () {},
                     child: Row(
                       children: [
                         TextSheet(
@@ -366,7 +384,7 @@ class _MenuScreenState extends State<MenuScreen> {
                     kategori: storeList[index].kategori,
                     rate: storeList[index].rate,
                     delivery: storeList[index].delivery,
-                    deliveryTimeOnMinute: storeList[index].deliveryTime
+                    deliveryTimeOnMinute: storeList[index].deliveryTime,
                   );
                 },
                 separatorBuilder: (context, index) => SizedBox(height: 30),

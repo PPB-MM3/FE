@@ -6,6 +6,8 @@ import 'package:telfood/screen/menu_screen.dart';
 import 'package:telfood/screen/sign_up_screen.dart';
 import 'package:telfood/widgets/text_sheet.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -35,7 +37,10 @@ class _SignInScreenState extends State<SignInScreen> {
         String userName = userCredential.user?.displayName ?? 'User';
 
         // Navigate to the main menu screen if sign-in is successful
-        Navigators.push(context, MenuScreen(name: userName));
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MenuScreen(name: userName)),
+        );
       } on FirebaseAuthException catch (e) {
         // Handle error
         String message;
@@ -48,6 +53,38 @@ class _SignInScreenState extends State<SignInScreen> {
         }
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
       }
+    }
+  }
+
+  Future<void> signInWithGoogle() async {
+    try {
+      // Trigger the authentication flow
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+
+      // Create a new credential
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth?.accessToken,
+        idToken: googleAuth?.idToken,
+      );
+
+      // Sign in to Firebase with the Google [UserCredential]
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+
+      // Get the user's display name
+      String userName = userCredential.user?.displayName ?? 'User';
+
+      // Navigate to the main menu screen if sign-in is successful
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => MenuScreen(name: userName)),
+      );
+    } on FirebaseAuthException catch (e) {
+      // Handle error
+      String message = 'An error occurred. Please try again.';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
     }
   }
 
@@ -132,17 +169,21 @@ class _SignInScreenState extends State<SignInScreen> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Checkbox(
-                                    value: rememberMe,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        rememberMe = value!;
-                                      });
-                                    },
-                                  ),
-                                  const TextSheet(
-                                    text: "Ingat Saya",
-                                    color: AppColors.grey,
+                                  Row(
+                                    children: [
+                                      Checkbox(
+                                        value: rememberMe,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            rememberMe = value!;
+                                          });
+                                        },
+                                      ),
+                                      const TextSheet(
+                                        text: "Ingat Saya",
+                                        color: AppColors.grey,
+                                      ),
+                                    ],
                                   ),
                                   TextButton(
                                     onPressed: () {},
@@ -187,7 +228,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             ),
                             InkWell(
                               onTap: () {
-                                Navigators.push(context, SignUpScreen());
+                                Navigators.push(context, const SignUpScreen());
                               },
                               child: const TextSheet(
                                 text: "DAFTAR SEKARANG",
@@ -229,7 +270,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             ),
                             SizedBox(width: (MediaQuery.of(context).size.width * 0.05) + 5),
                             InkWell(
-                              onTap: () {},
+                              onTap: signInWithGoogle,
                               child: SizedBox.square(
                                 dimension: MediaQuery.of(context).size.width * 0.175,
                                 child: Image.asset("assets/image/btn-google.png"),
